@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Lịch sử cảm xúc - CalmNote</title>
+    <style>
+        body { background: #f0f4f8; font-family: 'Segoe UI', sans-serif; padding: 40px; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        th, td { padding: 20px; text-align: left; border-bottom: 1px solid #f0f0f0; }
+        th { background: #A2D2FF; color: white; }
+        .mood-tag { padding: 5px 10px; border-radius: 10px; background: #CDB4DB; color: white; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h2 style="color: #6a4a7c;">📊 Hành trình cảm xúc của bạn</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Ngày tháng</th>
+                <th>Nội dung tâm sự</th>
+                <th>Cảm xúc</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in entries %}
+            <tr>
+                <td>{{ entry.date.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td>{{ entry.content }}</td>
+                <td><span class="mood-tag">{{ entry.mood }} ⭐</span></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br><a href="/" style="text-decoration: none; color: #A2D2FF; font-weight: bold;">← Quay lại viết nhật ký</a>
+</body>
+</html>

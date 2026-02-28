@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>CalmNote - Nhật ký của bạn</title>
+    <style>
+        body { background: #fdf6ff; font-family: 'Segoe UI', sans-serif; text-align: center; padding: 20px; }
+        nav { margin-bottom: 30px; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        textarea { width: 100%; height: 150px; border-radius: 15px; padding: 15px; border: 1px solid #eee; font-size: 16px; resize: none; }
+        .mood-slider { margin: 20px 0; }
+        button { background: #A2D2FF; color: white; border: none; padding: 15px 40px; border-radius: 30px; font-weight: bold; cursor: pointer; font-size: 16px; }
+        .feedback { margin-top: 25px; background: #FFFEA3; padding: 15px; border-radius: 15px; border-left: 10px solid #FFD700; text-align: left; }
+    </style>
+</head>
+<body>
+    <nav>
+        <b>CalmNote</b> | <a href="/dashboard">Xem lịch sử cảm xúc</a> | <a href="/logout">Đăng xuất</a>
+    </nav>
+    <div class="container">
+        <h2 style="color: #CDB4DB;">🌙 Chào {{ user }}, hôm nay bạn thế nào?</h2>
+        <form action="/save" method="post">
+            <textarea name="content" placeholder="Hãy kể cho mình nghe về ngày hôm nay của bạn..."></textarea><br>
+            <div class="mood-slider">
+                <label>Mức độ hạnh phúc (1: Rất tệ - 5: Tuyệt vời):</label><br>
+                <input type="range" name="mood" min="1" max="5" value="3" style="width: 80%;">
+            </div>
+            <button type="submit">Lưu lại tâm tư</button>
+        </form>
+
+        {% if feedback %}
+        <div class="feedback">
+            ✨ <b>Lời nhắn từ CalmNote:</b> {{ feedback }}
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
