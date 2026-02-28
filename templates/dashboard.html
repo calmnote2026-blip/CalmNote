@@ -1,6 +1,119 @@
 <!DOCTYPE html>
 <html>
+<head>
+<meta charset="UTF-8">
+<title>Lịch sử - CalmNote</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body {
+    background:#f3f0ff;
+    font-family:'Segoe UI',sans-serif;
+    margin:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+
+.nav {
+    width:100%;
+    background:white;
+    padding:15px;
+    text-align:center;
+    box-shadow:0 2px 10px rgba(0,0,0,0.05);
+}
+
+.nav a {
+    margin:0 15px;
+    text-decoration:none;
+    color:#6a5acd;
+    font-weight:bold;
+}
+
+.card {
+    background:white;
+    margin:25px;
+    padding:25px;
+    border-radius:20px;
+    width:90%;
+    max-width:650px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.05);
+}
+
+.entry {
+    border-bottom:1px solid #eee;
+    padding:15px 0;
+}
+
+.entry:last-child {
+    border-bottom:none;
+}
+
+small {
+    color:#888;
+}
+</style>
+</head>
+
 <body>
-    <script>window.location.href = "/";</script>
+
+<div class="nav">
+    <a href="/">Trang chủ</a>
+    <a href="/history">Lịch sử</a>
+    <a href="/ai-chat">Chat AI</a>
+    <a href="/logout">Thoát</a>
+</div>
+
+<div class="card">
+    <h3 style="color:#6a5acd;">📊 Biểu đồ cảm xúc 7 ngày gần nhất</h3>
+    <canvas id="chart"></canvas>
+</div>
+
+<div class="card">
+    <h3 style="color:#6a5acd;">📜 Nhật ký của {{ user }}</h3>
+
+    {% set mood_emoji = ['😫','😔','😐','😊','🤩'] %}
+
+    {% for e in entries %}
+    <div class="entry">
+        <small>
+            {{ e.date.strftime('%d/%m/%Y') }}
+            - {{ mood_emoji[e.mood-1] }}
+        </small>
+        <p>{{ e.content }}</p>
+    </div>
+    {% else %}
+    <p style="color:#888;">Bạn chưa có nhật ký nào 🌷</p>
+    {% endfor %}
+</div>
+
+<script>
+if ({{ moods|length }} > 0) {
+    new Chart(document.getElementById('chart'), {
+        type: 'line',
+        data: {
+            labels: {{ dates|tojson }},
+            datasets: [{
+                label: 'Tâm trạng',
+                data: {{ moods|tojson }},
+                borderColor: '#6a5acd',
+                backgroundColor: 'rgba(106, 90, 205, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    min: 1,
+                    max: 5,
+                    ticks: { stepSize: 1 }
+                }
+            }
+        }
+    });
+}
+</script>
+
 </body>
 </html>
