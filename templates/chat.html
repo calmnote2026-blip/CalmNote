@@ -1,49 +1,143 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
-<meta charset="UTF-8">
-<title>Chat AI</title>
-<style>
-body { background:#f3f0ff; font-family:Segoe UI; margin:0; display:flex; flex-direction:column; height:100vh;}
-.chat { flex:1; padding:20px; overflow:auto;}
-.msg { margin:10px 0; padding:10px 15px; border-radius:15px; max-width:70%;}
-.ai { background:#6a5acd; color:white;}
-.user { background:white; align-self:flex-end;}
-.input { display:flex; padding:15px; background:white;}
-input { flex:1; padding:10px; border-radius:10px; border:1px solid #ddd;}
-button { margin-left:10px; padding:10px 15px; border:none; border-radius:10px; background:#6a5acd; color:white;}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CalmNote - Trò chuyện cùng AI</title>
+    <style>
+        /* Giao diện theo phong cách nhóm gửi nhưng tối ưu hơn */
+        body { 
+            background: #f3f0ff; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh;
+        }
+        /* Thanh điều hướng giống các trang khác */
+        .nav { 
+            background: white; 
+            padding: 15px; 
+            text-align: center; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
+        }
+        .nav a { 
+            margin: 0 15px; 
+            text-decoration: none; 
+            color: #6a5acd; 
+            font-weight: bold; 
+        }
+        /* Khung chat */
+        .chat-box { 
+            flex: 1; 
+            padding: 20px; 
+            overflow-y: auto; 
+            display: flex; 
+            flex-direction: column; 
+        }
+        .msg { 
+            margin: 10px 0; 
+            padding: 12px 18px; 
+            border-radius: 20px; 
+            max-width: 75%; 
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+        /* Tin nhắn của AI */
+        .ai { 
+            background: #6a5acd; 
+            color: white; 
+            align-self: flex-start; 
+            border-bottom-left-radius: 5px;
+        }
+        /* Tin nhắn của User */
+        .user { 
+            background: white; 
+            color: #333;
+            align-self: flex-end; 
+            border-bottom-right-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        /* Khu vực nhập liệu */
+        .input-area { 
+            display: flex; 
+            padding: 20px; 
+            background: white; 
+            border-top: 1px solid #eee;
+        }
+        input { 
+            flex: 1; 
+            padding: 12px 15px; 
+            border-radius: 25px; 
+            border: 1px solid #ddd; 
+            outline: none;
+            font-size: 16px;
+        }
+        button { 
+            margin-left: 10px; 
+            padding: 10px 25px; 
+            border: none; 
+            border-radius: 25px; 
+            background: #6a5acd; 
+            color: white; 
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #5a4dbd;
+        }
+    </style>
 </head>
 <body>
 
-<div class="chat" id="chatBox">
-<div class="msg ai">Chào {{ user }}, mình ở đây để lắng nghe bạn.</div>
-</div>
+    <div class="nav">
+        <a href="/">📝 TRANG CHỦ</a> | 
+        <a href="/dashboard">📊 THỐNG KÊ</a> | 
+        <a href="/chat">💬 CHAT AI</a> | 
+        <a href="/logout">🚪 ĐĂNG XUẤT</a>
+    </div>
 
-<div class="input">
-<input id="msg">
-<button onclick="send()">Gửi</button>
-</div>
+    <div class="chat-box" id="chatBox">
+        <div class="msg ai">Chào {{ user }}, mình là người bạn tri kỷ của bạn. Hôm nay bạn có tâm sự gì muốn chia sẻ không? 🌿</div>
+    </div>
 
-<script>
-function send(){
-let msg=document.getElementById("msg").value;
-if(!msg) return;
-let box=document.getElementById("chatBox");
-box.innerHTML+=`<div class="msg user">${msg}</div>`;
-fetch("/chat",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({message:msg})
-})
-.then(r=>r.json())
-.then(data=>{
-box.innerHTML+=`<div class="msg ai">${data.reply}</div>`;
-box.scrollTop=box.scrollHeight;
-});
-document.getElementById("msg").value="";
-}
-</script>
+    <div class="input-area">
+        <input type="text" id="userMsg" placeholder="Nhập tin nhắn tâm sự..." onkeypress="if(event.key==='Enter') send()">
+        <button onclick="send()">GỬI</button>
+    </div>
+
+    <script>
+        async function send() {
+            const input = document.getElementById("userMsg");
+            const box = document.getElementById("chatBox");
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            // 1. Hiển thị tin nhắn của người dùng lên màn hình
+            box.innerHTML += `<div class="msg user">${message}</div>`;
+            input.value = ""; // Xóa ô nhập liệu
+            box.scrollTop = box.scrollHeight; // Cuộn xuống cuối
+
+            try {
+                // 2. Gửi dữ liệu đến Server Flask (route /chat)
+                const response = await fetch("/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: message })
+                });
+
+                const data = await response.json();
+
+                // 3. Hiển thị câu trả lời từ AI
+                box.innerHTML += `<div class="msg ai">${data.reply}</div>`;
+                box.scrollTop = box.scrollHeight;
+            } catch (error) {
+                box.innerHTML += `<div class="msg ai">Rất tiếc, mình đang gặp chút trục trặc. Bạn chờ mình xíu nhé!</div>`;
+            }
+        }
+    </script>
 
 </body>
 </html>
