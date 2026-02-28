@@ -3,20 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <title>Đăng ký - CalmNote</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <style>
         body { background: #f0f4f8; font-family: sans-serif; height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; }
-        .card { background: white; padding: 40px; border-radius: 25px; width: 320px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 12px; border: 1px solid #ddd; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; border-radius: 12px; border: none; background: #a2d2ff; color: white; cursor: pointer; font-weight: bold; }
+        .card { background: white; padding: 40px; border-radius: 25px; width: 300px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; border-radius: 10px; border: none; background: #a2d2ff; color: white; cursor: pointer; font-weight: bold; }
     </style>
 </head>
-<body class="animate__animated animate__fadeIn">
-    <div class="card animate__animated animate__zoomIn">
+<body>
+    <div class="card">
         <h2>🌟 Đăng ký</h2>
         <form method="post">
-            <input type="text" name="username" placeholder="Tên tài khoản mới" required>
-            <input type="password" name="pin" placeholder="Mã PIN bảo mật" required>
+            <input type="text" name="username" placeholder="Tên tài khoản" required>
+            <input type="password" name="pin" placeholder="Mã PIN" required>
             <button type="submit">Tạo tài khoản</button>
         </form>
         <p style="font-size: 14px; margin-top: 15px;"><a href="/login" style="color:#5dade2; text-decoration:none;">Quay lại đăng nhập</a></p>
