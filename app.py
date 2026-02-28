@@ -5,30 +5,37 @@ import os
 from openai import OpenAI
 
 app = Flask(__name__)
-app.secret_key = "snt_calmnote_v4_final"
+app.secret_key = "calmnote_secure_key"
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///calmnote.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 db = SQLAlchemy(app)
 
-# ===== OpenAI Client =====
-client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+# ===== OpenAI =====
+api_key = os.environ.get("OPENAI_API_KEY")
+client = OpenAI(api_key=api_key) if api_key else None
 
-# ===== Database Models =====
+
+# ===== Models =====
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
     pin = db.Column(db.String(10), nullable=False)
     entries = db.relationship('Entry', backref='author', lazy=True)
 
+
 class Entry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False)
     mood = db.Column(db.Integer)
-    date = db.Column(db.DateTime, default=datetime.now)
+    date = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
 
 with app.app_context():
     db.create_all()
+
 
 # ================= ROUTES =================
 
@@ -36,20 +43,48 @@ with app.app_context():
 def home():
     if 'user_id' not in session:
         return redirect(url_for('login'))
+    return render_template('index.html', user=session['username'])
 
-    entries = Entry.query.filter_by(user_id=session['user_id']).order_by(Entry.date.desc()).all()
-    chart_data = Entry.query.filter_by(user_id=session['user_id']).order_by(Entry.date.asc()).all()
+
+@app.route('/history')
+def history():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    entries = Entry.query.filter_by(
+        user_id=session['user_id']
+    ).order_by(Entry.date.desc()).all()
+
+    chart_data = Entry.query.filter_by(
+        user_id=session['user_id']
+    ).order_by(Entry.date.asc()).all()
 
     dates = [e.date.strftime("%d/%m") for e in chart_data][-7:]
     moods = [e.mood for e in chart_data][-7:]
 
     return render_template(
-        'index.html',
+        'history.html',
         user=session['username'],
         entries=entries,
         dates=dates,
         moods=moods
     )
+
+
+@app.route('/save', methods=['POST'])
+def save():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    entry = Entry(
+        content=request.form['content'],
+        mood=int(request.form['mood']),
+        user_id=session['user_id']
+    )
+    db.session.add(entry)
+    db.session.commit()
+
+    return redirect(url_for('history'))
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -65,7 +100,7 @@ def login():
             session['username'] = user.username
             return redirect(url_for('home'))
 
-        flash("Sai thông tin!")
+        flash("Sai thông tin đăng nhập.")
 
     return render_template('login.html')
 
@@ -73,7 +108,9 @@ def login():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        try:
+        if User.query.filter_by(username=request.form['username']).first():
+            flash("Tên đã tồn tại!")
+        else:
             new_user = User(
                 username=request.form['username'],
                 pin=request.form['pin']
@@ -81,43 +118,21 @@ def register():
             db.session.add(new_user)
             db.session.commit()
             return redirect(url_for('login'))
-        except:
-            flash("Tên đã tồn tại!")
 
     return render_template('register.html')
 
 
-@app.route('/save', methods=['POST'])
-def save():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-
-    new_entry = Entry(
-        content=request.form['content'],
-        mood=int(request.form['mood']),
-        user_id=session['user_id']
-    )
-
-    db.session.add(new_entry)
-    db.session.commit()
-
-    return redirect(url_for('home'))
-
-
-# ====== CHAT PAGE ======
 @app.route('/ai-chat')
 def ai_chat():
     if 'user_id' not in session:
         return redirect(url_for('login'))
-
     return render_template('chat.html', user=session['username'])
 
 
-# ====== CHAT API (NEW) ======
 @app.route('/chat', methods=['POST'])
 def chat():
-    if 'user_id' not in session:
-        return jsonify({"reply": "Bạn cần đăng nhập trước nhé."})
+    if not client:
+        return jsonify({"reply": "AI hiện chưa được cấu hình."})
 
     user_message = request.json.get("message")
 
@@ -125,28 +140,18 @@ def chat():
         completion = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {
-                    "role": "system",
-                    "content": f"""
-Bạn là một người bạn nữ dịu dàng, tinh tế và biết lắng nghe.
-Hãy trò chuyện tự nhiên, ấm áp và thấu hiểu.
-Người dùng tên là {session['username']}.
-"""
-                },
-                {
-                    "role": "user",
-                    "content": user_message
-                }
+                {"role": "system",
+                 "content": f"Bạn là một người bạn nữ dịu dàng, tinh tế và biết lắng nghe. Người dùng tên {session['username']}."},
+                {"role": "user", "content": user_message}
             ],
             temperature=0.8
         )
 
         reply = completion.choices[0].message.content
-
         return jsonify({"reply": reply})
 
-    except Exception as e:
-        return jsonify({"reply": "Mình hơi mệt một chút rồi... bạn thử lại nhé."})
+    except:
+        return jsonify({"reply": "Mình hơi mệt một chút rồi, thử lại sau nhé."})
 
 
 @app.route('/logout')
@@ -156,4 +161,4 @@ def logout():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
+    app.run(debug=True)
