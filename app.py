@@ -4,12 +4,12 @@ from datetime import datetime
 import os, random
 
 app = Flask(__name__)
-app.secret_key = "snt_calmnote_2026_final"
+app.secret_key = "snt_calmnote_final_2026"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///calmnote.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-# --- Cấu trúc Database ---
+# Database Models
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
@@ -26,7 +26,6 @@ class Entry(db.Model):
 with app.app_context():
     db.create_all()
 
-# --- Các đường dẫn (Routes) ---
 @app.route('/')
 def home():
     if 'user_id' not in session: return redirect(url_for('login'))
@@ -39,10 +38,8 @@ def register():
             new_user = User(username=request.form['username'], pin=request.form['pin'])
             db.session.add(new_user)
             db.session.commit()
-            flash("Đăng ký thành công! Mời bạn đăng nhập.")
             return redirect(url_for('login'))
         except:
-            db.session.rollback()
             flash("Tên đăng nhập đã tồn tại!")
     return render_template('register.html')
 
@@ -54,22 +51,17 @@ def login():
             session['user_id'] = user.id
             session['username'] = user.username
             return redirect(url_for('home'))
-        flash("Sai tên đăng nhập hoặc mã PIN!")
+        flash("Sai mã PIN hoặc tên đăng nhập!")
     return render_template('login.html')
 
 @app.route('/save', methods=['POST'])
 def save():
-    if 'user_id' not in session: return redirect(url_for('login'))
     mood_val = int(request.form['mood'])
     new_entry = Entry(content=request.form['content'], mood=mood_val, user_id=session['user_id'])
     db.session.add(new_entry)
     db.session.commit()
     
-    advices = [
-        "Cảm ơn bạn đã chia sẻ, hãy nghỉ ngơi nhé! ✨",
-        "CalmNote luôn ở đây lắng nghe bạn. 🌿",
-        "Bạn đã làm rất tốt hôm nay rồi! 🌟"
-    ]
+    advices = ["Bạn đã làm rất tốt! ✨", "Hãy dành thời gian nghỉ ngơi nhé. 🌿", "CalmNote luôn bên bạn. 🫂"]
     return render_template('index.html', feedback=random.choice(advices), user=session['username'])
 
 @app.route('/dashboard')
