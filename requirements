@@ -1,4 +1,4 @@
-Flask
-Flask-SQLAlchemy
+flask
+flask-sqlalchemy
 gunicorn
-openai
+google-generativeai
