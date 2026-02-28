@@ -1,15 +1,15 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import os, random
 
 app = Flask(__name__)
-app.secret_key = "snt_calmnote_secret_2026_smooth"
+app.secret_key = "snt_calmnote_2026_final"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///calmnote.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-# --- Cấu trúc Database (Models) ---
+# --- Cấu trúc Database ---
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
@@ -23,11 +23,10 @@ class Entry(db.Model):
     date = db.Column(db.DateTime, default=datetime.now)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
-# Tự động tạo bảng dữ liệu khi web khởi động
 with app.app_context():
     db.create_all()
 
-# --- CÁC ĐƯỜNG DẪN (ROUTES) ---
+# --- Các đường dẫn (Routes) ---
 @app.route('/')
 def home():
     if 'user_id' not in session: return redirect(url_for('login'))
@@ -37,19 +36,14 @@ def home():
 def register():
     if request.method == 'POST':
         try:
-            # SNT check tên tồn tại
-            existing_user = User.query.filter_by(username=request.form['username']).first()
-            if existing_user:
-                flash("Tên đăng nhập đã tồn tại!")
-                return render_template('register.html')
-                
             new_user = User(username=request.form['username'], pin=request.form['pin'])
             db.session.add(new_user)
             db.session.commit()
+            flash("Đăng ký thành công! Mời bạn đăng nhập.")
             return redirect(url_for('login'))
-        except Exception as e:
+        except:
             db.session.rollback()
-            flash("Có lỗi xảy ra.")
+            flash("Tên đăng nhập đã tồn tại!")
     return render_template('register.html')
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -60,55 +54,30 @@ def login():
             session['user_id'] = user.id
             session['username'] = user.username
             return redirect(url_for('home'))
-        flash("Sai thông tin đăng nhập hoặc mã PIN!")
+        flash("Sai tên đăng nhập hoặc mã PIN!")
     return render_template('login.html')
 
 @app.route('/save', methods=['POST'])
 def save():
+    if 'user_id' not in session: return redirect(url_for('login'))
     mood_val = int(request.form['mood'])
     new_entry = Entry(content=request.form['content'], mood=mood_val, user_id=session['user_id'])
     db.session.add(new_entry)
     db.session.commit()
     
-    # Đa dạng hóa lời phản hồi AI cho SNT
-    advices = {
-        1: [
-            "Mình thấy bạn đang rất mệt mỏi. Đừng gồng mình quá, hãy nghỉ ngơi nhé! 🫂",
-            "Mọi chuyện buồn rồi sẽ qua thôi. Hãy cho phép mình nghỉ một chút. 💛",
-            "Đừng quên hít thở sâu, bạn đã cố gắng rất nhiều rồi. 🌟"
-        ],
-        2: [
-            "Hôm nay có vẻ hơi khó khăn. Mình luôn ở đây lắng nghe bạn. 🌿",
-            "Hãy tìm một chút niềm vui nhỏ để xoa dịu tâm hồn nhé. 😊",
-            "Nụ cười của bạn là điều đẹp nhất hôm nay. Đừng để nó tắt nhé! 😊"
-        ],
-        3: [
-            "Một ngày bình yên cũng là một điều đáng quý. ☕",
-            "Hãy tận hưởng sự tĩnh lặng này và sạc lại năng lượng. 🔋",
-            "Bạn đang làm rất tốt, cứ duy trì như vậy nhé! ✨"
-        ],
-        4: [
-            "Tuyệt vời! Hãy lan tỏa năng lượng tích cực này nhé! ✨",
-            "Chúc mừng bạn đã có một ngày thật ý nghĩa. 🎉",
-            "Niềm vui của bạn cũng là niềm vui của mình. Cảm ơn bạn! 😊"
-        ],
-        5: [
-            "Bạn đang tỏa sáng rực rỡ! Hãy giữ vững phong độ này nhé. 🎉",
-            "Một ngày hoàn hảo! Mình chúc mừng bạn rực rỡ. ✨",
-            "Hạnh phúc đang mỉm cười với bạn, hãy tận hưởng nó! 🌟"
-        ]
-    }
-    return render_template('index.html', feedback=random.choice(advices.get(mood_val)), user=session['username'])
+    advices = [
+        "Cảm ơn bạn đã chia sẻ, hãy nghỉ ngơi nhé! ✨",
+        "CalmNote luôn ở đây lắng nghe bạn. 🌿",
+        "Bạn đã làm rất tốt hôm nay rồi! 🌟"
+    ]
+    return render_template('index.html', feedback=random.choice(advices), user=session['username'])
 
 @app.route('/dashboard')
 def dashboard():
     if 'user_id' not in session: return redirect(url_for('login'))
-    # Lấy nhật ký và sắp xếp theo ngày tăng dần cho biểu đồ SNT
     entries = Entry.query.filter_by(user_id=session['user_id']).order_by(Entry.date.asc()).all()
-    # Chuẩn bị dữ liệu cho biểu đồ 
-    dates = [e.date.strftime("%d/%m") for e in entries][-7:] # Lấy 7 ngày gần nhất
+    dates = [e.date.strftime("%d/%m") for e in entries][-7:]
     moods = [e.mood for e in entries][-7:]
-    # Trả nhật ký theo thứ tự mới nhất để hiển thị SNT
     return render_template('dashboard.html', entries=entries[::-1], dates=dates, moods=moods)
 
 @app.route('/ai-chat')
