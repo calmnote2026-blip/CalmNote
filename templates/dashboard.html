@@ -1,37 +1,6 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <title>Thống kê - CalmNote</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    <style>
-        body { background: #f0f4f8; font-family: sans-serif; text-align: center; padding: 20px; }
-        .container { background: white; padding: 25px; border-radius: 20px; max-width: 800px; margin: auto; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .entry { border-bottom: 1px solid #eee; padding: 15px; text-align: left; }
-    </style>
-</head>
-<body class="animate__animated animate__fadeIn">
-    <div style="margin-bottom:20px"><a href="/" style="text-decoration:none; color:#6a5acd;">← Quay lại</a></div>
-    <div class="container">
-        <h2>📊 Biểu đồ tâm trạng</h2>
-        <canvas id="myChart" height="150"></canvas>
-        <hr>
-        {% for entry in entries %}
-        <div class="entry">
-            <small>{{ entry.date.strftime('%d/%m') }}</small> - <strong>Mức: {{ entry.mood }}/5</strong>
-            <p>{{ entry.content }}</p>
-        </div>
-        {% endfor %}
-    </div>
-    <script>
-        new Chart(document.getElementById('myChart'), {
-            type: 'line',
-            data: {
-                labels: {{ dates|tojson }},
-                datasets: [{ label: 'Tâm trạng', data: {{ moods|tojson }}, borderColor: '#6a5acd', fill: true, tension: 0.4 }]
-            }
-        });
-    </script>
+<body>
+    <script>window.location.href = "/";</script>
 </body>
 </html>
