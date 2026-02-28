@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trò chuyện AI - CalmNote</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        body { background: #f0f4f8; font-family: sans-serif; display: flex; flex-direction: column; height: 100vh; margin: 0; }
+        
+        .chat-box { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; scroll-behavior: smooth; }
+        .msg { padding: 12px 18px; border-radius: 18px; max-width: 75%; }
+        .ai { background: #A2D2FF; align-self: flex-start; color: white; }
+        .user { background: white; align-self: flex-end; color: #333; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        
+        .input-area { background: white; padding: 20px; display: flex; gap: 10px; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+        input { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid #ddd; outline: none; }
+        button { background: #A2D2FF; border: none; padding: 12px 25px; border-radius: 12px; color: white; cursor: pointer; font-weight: bold; transition: background 0.3s; }
+        button:hover { background: #8ECAE6; }
+    </style>
+</head>
+<body class="animate__animated animate__fadeIn">
+    <div style="background: white; padding: 15px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+        <a href="/" style="text-decoration:none; color:#5dade2; position: absolute; left: 20px; top: 18px;">← Quay lại</a>
+        <h3 style="display:inline; color: #6a5acd; margin: 0;">💬 Trò chuyện cùng CalmNote AI</h3>
+    </div>
+    <div class="chat-box" id="chatBox">
+        <div class="msg ai animate__animated animate__fadeInUp">Chào {{ user }}, mình là AI của CalmNote. Hôm nay bạn thấy thế nào? Hãy chia sẻ với mình nhé!</div>
+    </div>
+    <div class="input-area animate__animated animate__slideInUp">
+        <input type="text" id="userInput" placeholder="Nhập tin nhắn..." onkeypress="handleKey(event)">
+        <button onclick="sendMessage()">Gửi</button>
+    </div>
+
+    <script>
+        function sendMessage() {
+            const input = document.getElementById('userInput');
+            const box = document.getElementById('chatBox');
+            if(!input.value) return;
+
+            // SNT thêm tin nhắn người dùng 
+            box.innerHTML += `<div class="msg user animate__animated animate__fadeInRight">${input.value}</div>`;
+            box.scrollTop = box.scrollHeight;
+            input.value = "";
+
+            // Logic AI phản hồi SNT
+            setTimeout(() => {
+                const replies = ["Mình luôn ở đây lắng nghe bạn.", "Bạn có muốn kể chi tiết hơn không?", "Cảm ơn bạn đã tin tưởng mình.", "Điều đó thật thú vị!", "Hãy tiếp tục chia sẻ nhé.", "Cảm xúc này thật đặc biệt."];
+                const randomReply = replies[Math.floor(Math.random() * replies.length)];
+                box.innerHTML += `<div class="msg ai animate__animated animate__fadeInUp">${randomReply}</div>`;
+                box.scrollTop = box.scrollHeight;
+            }, 1200);
+        }
+
+        function handleKey(e) { if(e.key === 'Enter') sendMessage(); }
+    </script>
+</body>
+</html>
