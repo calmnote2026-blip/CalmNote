@@ -1,28 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CalmNote - Trang chủ</title>
     <style>
-        body { background: #fdfbff; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; margin: 0; }
-        .nav { background: white; width: 100%; padding: 15px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        body { background: #fdfbff; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; }
+        .nav { background: white; width: 100%; padding: 15px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; }
         .nav a { margin: 0 15px; text-decoration: none; color: #6a5acd; font-weight: bold; }
-        .card { background: white; margin-top: 40px; padding: 30px; border-radius: 30px; width: 90%; max-width: 500px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; }
-        textarea { width: 100%; height: 150px; border-radius: 15px; border: 1px solid #eee; padding: 15px; box-sizing: border-box; font-size: 16px; outline: none; }
-        .ai-box { background: #f0ebff; color: #4b3d8e; padding: 15px; border-radius: 15px; margin-bottom: 20px; font-style: italic; }
-        button { background: #a2d2ff; color: white; border: none; padding: 15px; border-radius: 50px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        .card { background: white; margin-top: 30px; padding: 30px; border-radius: 25px; width: 90%; max-width: 500px; box-shadow: 0 8px 25px rgba(0,0,0,0.05); text-align: center; }
+        textarea { width: 100%; height: 150px; border-radius: 15px; border: 1px solid #eee; padding: 15px; font-size: 16px; resize: none; outline: none; }
+        .ai-box { background: #f0ebff; color: #4b3d8e; padding: 15px; border-radius: 15px; margin-bottom: 20px; border-left: 5px solid #6a5acd; text-align: left; }
+        button { background: #a2d2ff; color: white; border: none; padding: 15px; border-radius: 50px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 16px; }
     </style>
 </head>
 <body>
     <div class="nav">
-        <a href="/">📝 TRANG CHỦ</a> | <a href="/history">📊 LỊCH SỬ</a> | <a href="/chat">💬 CHAT AI</a> | <a href="/logout">🚪 ĐĂNG XUẤT</a>
+        <a href="/">📝 TRANG CHỦ</a> | <a href="/dashboard">📊 THỐNG KÊ</a> | <a href="/chat">💬 CHAT AI</a> | <a href="/logout">🚪 ĐĂNG XUẤT</a>
     </div>
     <div class="card">
-        <h2>🌙 Chào {{ user }}, hôm nay bạn thế nào?</h2>
+        <h3>🌙 Xin chào {{ user }}, hôm nay bạn thế nào?</h3>
         {% if feedback %}<div class="ai-box">✨ {{ feedback }}</div>{% endif %}
         <form action="/save" method="post">
-            <textarea name="content" placeholder="Hãy kể cho mình nghe..." required></textarea>
-            <p>Mức độ hạnh phúc (1-5):</p>
+            <textarea name="content" placeholder="Hãy kể cho mình nghe về ngày hôm nay..." required></textarea>
+            <p>Cảm xúc hiện tại (1: Tệ - 5: Tuyệt):</p>
             <input type="range" name="mood" min="1" max="5" value="3" style="width:100%">
             <button type="submit">LƯU LẠI TÂM TƯ</button>
         </form>
