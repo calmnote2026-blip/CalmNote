@@ -2,12 +2,11 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Chat cùng AI - CalmNote</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <title>Chat cùng AI</title>
     <style>
         body { background: #f0f4f8; font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; margin: 0; }
         .chat-box { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
-        .msg { padding: 12px 18px; border-radius: 18px; max-width: 75%; line-height: 1.5; }
+        .msg { padding: 12px 18px; border-radius: 18px; max-width: 75%; font-size: 15px; }
         .ai { background: #6a5acd; color: white; align-self: flex-start; }
         .user { background: white; align-self: flex-end; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .input-area { background: white; padding: 20px; display: flex; gap: 10px; }
@@ -15,23 +14,23 @@
         button { background: #6a5acd; color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; }
     </style>
 </head>
-<body class="animate__animated animate__fadeIn">
-    <div style="background:white; padding:15px; text-align:center;"><a href="/" style="float:left; text-decoration:none; color:#6a5acd;">← Thoát</a> 💬 Tâm sự cùng AI</div>
+<body>
+    <div style="background:white; padding:15px; text-align:center;"><a href="/" style="float:left; text-decoration:none; color:#6a5acd; font-weight:bold;">← Thoát</a> 💬 Tâm sự cùng AI</div>
     <div class="chat-box" id="box">
-        <div class="msg ai animate__animated animate__fadeInUp">Chào {{ user }}, mình luôn lắng nghe bạn. Có chuyện gì làm bạn suy nghĩ không?</div>
+        <div class="msg ai">Chào {{ user }}, mình luôn lắng nghe bạn. Có chuyện gì đang làm bạn bận lòng không?</div>
     </div>
     <div class="input-area">
-        <input type="text" id="inp" placeholder="Nhập tâm sự...">
+        <input type="text" id="inp" placeholder="Hãy nói cho mình nghe...">
         <button onclick="send()">Gửi</button>
     </div>
     <script>
         function send() {
             let i = document.getElementById('inp'); let b = document.getElementById('box');
             if(!i.value) return;
-            b.innerHTML += `<div class="msg user animate__animated animate__fadeInRight">${i.value}</div>`;
+            b.innerHTML += `<div class="msg user">${i.value}</div>`;
             setTimeout(() => {
-                const rs = ["Mình hiểu mà, cảm ơn bạn đã chia sẻ.", "Bạn có muốn kể rõ hơn không?", "Mọi chuyện rồi sẽ ổn thôi, tin mình đi!", "Bạn thật mạnh mẽ khi nói ra được điều này."];
-                b.innerHTML += `<div class="msg ai animate__animated animate__fadeInUp">${rs[Math.floor(Math.random()*rs.length)]}</div>`;
+                const rs = ["Mình hiểu mà, bạn cứ nói tiếp đi.", "Điều này có vẻ quan trọng với bạn lắm đúng không?", "Mọi chuyện rồi sẽ ổn thôi, mình luôn ở đây.", "Bạn đã làm rất tốt rồi, đừng quá khắt khe với bản thân nhé."];
+                b.innerHTML += `<div class="msg ai">${rs[Math.floor(Math.random()*rs.length)]}</div>`;
                 b.scrollTop = b.scrollHeight;
             }, 1000);
             i.value = ""; b.scrollTop = b.scrollHeight;
