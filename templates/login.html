@@ -1,46 +1,25 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng nhập - CalmNote</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <style>
-        body { background: #dcd0ff; font-family: 'Segoe UI', sans-serif; text-align: center; padding-top: 100px; margin: 0; }
-        .card { background: white; display: inline-block; padding: 40px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 320px; }
-        h2 { color: #6a5acd; margin-bottom: 25px; }
-        input { padding: 12px; margin: 10px 0; width: 100%; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; outline: none; }
-        button { background: #c3b1e1; color: white; border: none; padding: 12px 30px; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; font-size: 16px; margin-top: 10px; }
-        button:hover { background: #b19cd9; }
-        
-        /* Dòng chữ dẫn sang trang đăng ký */
-        .footer-link { margin-top: 20px; font-size: 14px; color: #666; }
-        .footer-link a { color: #6a5acd; text-decoration: none; font-weight: bold; }
-        .footer-link a:hover { text-decoration: underline; }
-
-        .flash-messages { color: #e74c3c; background: #fadbd8; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; }
+        body { background: #dcd0ff; font-family: sans-serif; text-align: center; padding-top: 100px; }
+        .card { background: white; display: inline-block; padding: 40px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 300px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; border-radius: 10px; border: none; background: #c3b1e1; color: white; cursor: pointer; font-weight: bold; }
     </style>
 </head>
-<body>
-    <div class="card">
+<body class="animate__animated animate__fadeIn">
+    <div class="card animate__animated animate__zoomIn">
         <h2>🔐 Đăng nhập</h2>
-
-        {% with messages = get_flashed_messages() %}
-          {% if messages %}
-            {% for message in messages %}
-              <div class="flash-messages">{{ message }}</div>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
-
         <form method="post">
             <input type="text" name="username" placeholder="Tên đăng nhập" required>
             <input type="password" name="pin" placeholder="Mã PIN" required>
             <button type="submit">Vào nhật ký</button>
         </form>
-
-        <div class="footer-link">
-            <p>Chưa có tài khoản? <a href="{{ url_for('register') }}">Đăng ký ngay</a></p>
-        </div>
+        <p style="font-size: 14px; margin-top: 15px;">Mới biết CalmNote? <a href="/register">Đăng ký ngay</a></p>
     </div>
 </body>
 </html>
