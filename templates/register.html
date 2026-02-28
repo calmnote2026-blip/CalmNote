@@ -2,23 +2,23 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Đăng ký - CalmNote</title>
+    <title>Đăng ký</title>
     <style>
-        body { background: #f0f4f8; font-family: sans-serif; height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; }
+        body { background: #f0f4f8; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
         .card { background: white; padding: 40px; border-radius: 25px; width: 300px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; border-radius: 10px; border: none; background: #a2d2ff; color: white; cursor: pointer; font-weight: bold; }
+        button { width: 100%; padding: 12px; background: #a2d2ff; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="card">
         <h2>🌟 Đăng ký</h2>
         <form method="post">
-            <input type="text" name="username" placeholder="Tên tài khoản" required>
+            <input type="text" name="username" placeholder="Tên mong muốn" required>
             <input type="password" name="pin" placeholder="Mã PIN" required>
             <button type="submit">Tạo tài khoản</button>
         </form>
-        <p style="font-size: 14px; margin-top: 15px;"><a href="/login" style="color:#5dade2; text-decoration:none;">Quay lại đăng nhập</a></p>
+        <p><a href="/login">Quay lại đăng nhập</a></p>
     </div>
 </body>
 </html>
