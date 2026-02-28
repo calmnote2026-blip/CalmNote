@@ -1,65 +1,37 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Thống kê - CalmNote</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/hover.css/2.3.1/css/hover-min.css"/>
     <style>
-        body { background: #f0f4f8; font-family: sans-serif; padding: 20px; text-align: center; margin: 0; }
-        .nav { margin-bottom: 20px; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .nav a { margin: 0 15px; text-decoration: none; color: #5dade2; font-weight: bold; transition: color 0.3s; }
-        .nav a:hover { color: #A2D2FF; }
-        
-        .container { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .entry-card { border-bottom: 1px solid #eee; padding: 20px; text-align: left; transition: transform 0.3s; cursor: pointer; }
-        .entry-card:hover { transform: translateX(10px); background-color: #fcfdff; }
-        .mood-tag { font-weight: bold; color: #6a5acd; }
-        
-        h2 { color: #6a5acd; margin-bottom: 20px; }
-        h3 { color: #5dade2; margin-top: 30px; }
-        hr { border: 0; border-top: 1px solid #eee; margin: 30px 0; }
+        body { background: #f0f4f8; font-family: sans-serif; text-align: center; padding: 20px; }
+        .container { background: white; padding: 20px; border-radius: 20px; display: inline-block; width: 90%; max-width: 800px; }
+        .entry { border-bottom: 1px solid #eee; padding: 10px; text-align: left; }
     </style>
 </head>
 <body class="animate__animated animate__fadeIn">
-    <div class="nav animate__animated animate__slideInDown">
-        <a href="/" class="hvr-grow">📝 Nhật ký</a> | <a href="/ai-chat" class="hvr-grow">💬 Chat AI</a> | <a href="/logout" class="hvr-grow">🚪 Thoát</a>
-    </div>
-    <div class="container">
-        <h2>📊 Biểu đồ Tâm trạng (7 ngày gần nhất)</h2>
-        <canvas id="moodChart" width="400" height="180"></canvas>
+    <div style="margin-bottom: 20px;"><a href="/" style="text-decoration:none; color:#5dade2;">← Quay lại</a></div>
+    <div class="container animate__animated animate__zoomIn">
+        <h2>📊 Biểu đồ cảm xúc</h2>
+        <canvas id="moodChart" height="150"></canvas>
         <hr>
-        <h3>📜 Lịch sử Nhật ký</h3>
-        <div class="animate__animated animate__fadeInUp">
+        <h3>📜 Nhật ký cũ</h3>
         {% for entry in entries %}
-        <div class="entry-card hvr-reveal">
-            <small style="color:#666;">{{ entry.date.strftime('%d/%m/%Y %H:%M') }}</small>
-            <p style="color:#333; margin: 10px 0;">{{ entry.content }}</p>
-            <span class="mood-tag">Cảm xúc: {{ entry.mood }}/5</span>
+        <div class="entry">
+            <small>{{ entry.date.strftime('%d/%m') }}</small> - <strong>{{ entry.mood }}/5</strong>
+            <p>{{ entry.content }}</p>
         </div>
         {% endfor %}
-        </div>
     </div>
-
     <script>
-        // SNT vẽ biểu đồ đường cảm xúc 
-        const ctx = document.getElementById('moodChart').getContext('2d');
-        new Chart(ctx, {
+        new Chart(document.getElementById('moodChart'), {
             type: 'line',
             data: {
                 labels: {{ dates|tojson }},
-                datasets: [{
-                    label: 'Mức độ Stress',
-                    data: {{ moods|tojson }},
-                    borderColor: '#A2D2FF',
-                    backgroundColor: 'rgba(162, 210, 255, 0.2)',
-                    fill: true, tension: 0.4,
-                    pointRadius: 6, pointBackgroundColor: '#6a5acd', pointHoverRadius: 8
-                }]
-            },
-            options: { scales: { y: { min: 1, max: 5 } } }
+                datasets: [{ label: 'Tâm trạng', data: {{ moods|tojson }}, borderColor: '#A2D2FF', fill: true, tension: 0.3 }]
+            }
         });
     </script>
 </body>
