@@ -38,8 +38,6 @@ class Entry(db.Model):
 with app.app_context():
     db.create_all()
 
-# --- ROUTES ---
-
 @app.route("/")
 def home():
     if "user_id" not in session: return redirect(url_for("login"))
@@ -54,37 +52,34 @@ def save():
     entry = Entry(content=content, mood=mood, user_id=session["user_id"])
     db.session.add(entry)
     db.session.commit()
-
     if model:
         try:
-            prompt = f"Người dùng vừa viết nhật ký: '{content}' với mức hạnh phúc {mood}/5. Hãy đưa ra một lời phản hồi cực kỳ ấm áp, đồng cảm và ngắn gọn (dưới 40 từ) bằng tiếng Việt."
+            prompt = f"Người dùng viết nhật ký: '{content}' (Mood: {mood}/5). Phản hồi cực kỳ ấm áp, đồng cảm, ngắn gọn dưới 40 từ bằng tiếng Việt."
             response = model.generate_content(prompt)
             session['ai_feedback'] = response.text
         except:
-            session['ai_feedback'] = "Mình đã lắng nghe câu chuyện của bạn. Cố gắng lên nhé! ✨"
+            session['ai_feedback'] = "Mình đã lắng nghe bạn. Cố gắng lên nhé! ✨"
     return redirect(url_for("home"))
 
-@app.route("/history")
-def history():
+@app.route("/dashboard")
+def dashboard():
     if "user_id" not in session: return redirect(url_for("login"))
     entries = Entry.query.filter_by(user_id=session["user_id"]).order_by(Entry.date.desc()).all()
-    # Dữ liệu cho biểu đồ
     chart_data = Entry.query.filter_by(user_id=session["user_id"]).order_by(Entry.date.asc()).all()
     dates = [e.date.strftime("%d/%m") for e in chart_data][-10:]
     moods = [e.mood for e in chart_data][-10:]
-    return render_template("history.html", entries=entries, dates=dates, moods=moods)
+    return render_template("dashboard.html", entries=entries, dates=dates, moods=moods)
 
 @app.route("/chat", methods=["GET", "POST"])
 def chat():
     if "user_id" not in session: return redirect(url_for("login"))
     if request.method == "POST":
-        if not model: return jsonify({"reply": "AI chưa sẵn sàng."})
         user_msg = request.json.get("message")
         try:
-            res = model.generate_content(f"Bạn là một người bạn tri kỷ, thấu hiểu. Hãy trò chuyện chân thành với: {user_msg}")
+            res = model.generate_content(f"Bạn là người bạn tri kỷ, thấu cảm. Trò chuyện chân thành: {user_msg}")
             return jsonify({"reply": res.text})
         except:
-            return jsonify({"reply": "Mình đang lắng nghe, bạn nói tiếp đi..."})
+            return jsonify({"reply": "Mình đang lắng nghe bạn..."})
     return render_template("chat.html", user=session["username"])
 
 @app.route("/login", methods=["GET", "POST"])
@@ -95,7 +90,7 @@ def login():
             session["user_id"] = user.id
             session["username"] = user.username
             return redirect(url_for("home"))
-        flash("Sai thông tin đăng nhập!")
+        flash("Sai thông tin!")
     return render_template("login.html")
 
 @app.route("/register", methods=["GET", "POST"])
