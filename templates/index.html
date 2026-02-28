@@ -2,48 +2,73 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>CalmNote - Nhật Kí</title>
+    <title>CalmNote - Trang chủ</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <style>
         body { background: #f0f4f8; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; }
-        .nav { background: white; width: 100%; padding: 15px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .nav a { margin: 0 15px; text-decoration: none; color: #6a5acd; font-weight: bold; font-size: 14px; }
-        .card { background: white; margin: 40px auto; padding: 40px; border-radius: 30px; width: 90%; max-width: 550px; box-shadow: 0 15px 40px rgba(0,0,0,0.05); }
-        textarea { width: 100%; height: 180px; border-radius: 20px; border: 1px solid #f0f0f0; background: #fafafa; padding: 20px; box-sizing: border-box; font-size: 16px; outline: none; }
-        .mood-box { display: flex; justify-content: space-around; margin: 25px 0; }
-        .mood-btn { font-size: 32px; cursor: pointer; filter: grayscale(100%); transition: 0.3s; }
-        .mood-btn.active { filter: grayscale(0%); transform: scale(1.3); }
-        button { background: linear-gradient(135deg, #a2d2ff, #6a5acd); color: white; border: none; padding: 16px; border-radius: 15px; width: 100%; font-weight: bold; cursor: pointer; }
-        .ai-feedback { background: #f4f0ff; color: #4b3d8e; padding: 20px; border-radius: 15px; margin-bottom: 25px; border-left: 6px solid #6a5acd; text-align: left; }
+        .nav { background: white; width: 100%; padding: 15px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top:0; z-index:100; }
+        .nav a { margin: 0 15px; text-decoration: none; color: #6a5acd; font-weight: bold; }
+        .card { background: white; margin: 20px; padding: 30px; border-radius: 25px; width: 90%; max-width: 600px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        textarea { width: 100%; height: 120px; border-radius: 15px; border: 1px solid #eee; padding: 15px; box-sizing: border-box; resize: none; font-size: 16px; }
+        .mood-box { display: flex; justify-content: space-around; margin: 20px 0; }
+        .mood-btn { font-size: 30px; cursor: pointer; filter: grayscale(100%); transition: 0.3s; }
+        .mood-btn.active { filter: grayscale(0%); transform: scale(1.2); }
+        .btn-save { background: linear-gradient(135deg, #a2d2ff, #6a5acd); color: white; border: none; padding: 14px; border-radius: 12px; width: 100%; font-weight: bold; cursor: pointer; }
+        .entry { border-bottom: 1px solid #f0f0f0; padding: 15px 0; text-align: left; }
     </style>
 </head>
 <body class="animate__animated animate__fadeIn">
-    <div class="nav animate__animated animate__slideInDown">
-        <a href="/">📝 NHẬT KÝ</a> | <a href="/dashboard">📊 THỐNG KÊ</a> | <a href="/ai-chat">💬 CHAT AI</a> | <a href="/logout">🚪 THOÁT</a>
+    <div class="nav">
+        <a href="/">📝 TRANG CHỦ</a> | <a href="/ai-chat">💬 CHAT AI</a> | <a href="/logout">🚪 THOÁT</a>
     </div>
+
     <div class="card animate__animated animate__zoomIn">
-        <h2>Chào {{ user }},</h2>
-        {% if feedback %}<div class="ai-feedback animate__animated animate__fadeInUp">{{ feedback }}</div>{% endif %}
+        <h3 style="color: #333;">🌙 Xin chào {{ user }}, hôm nay bạn thế nào?</h3>
         <form action="/save" method="post">
-            <textarea name="content" placeholder="Hôm nay bạn thế nào?" required></textarea>
-            <p>Tâm trạng bạn?</p>
+            <textarea name="content" placeholder="Kể cho mình nghe về ngày hôm nay của bạn..." required></textarea>
             <div class="mood-box">
-                <span class="mood-btn" onclick="setMood(1, this)">😫</span>
-                <span class="mood-btn" onclick="setMood(2, this)">😔</span>
-                <span class="mood-btn active" onclick="setMood(3, this)" style="filter:grayscale(0%)">😐</span>
-                <span class="mood-btn" onclick="setMood(4, this)">😊</span>
-                <span class="mood-btn" onclick="setMood(5, this)">🤩</span>
+                <span class="mood-btn" onclick="setM(1, this)">😫</span>
+                <span class="mood-btn" onclick="setM(2, this)">😔</span>
+                <span class="mood-btn active" onclick="setM(3, this)" style="filter:grayscale(0%)">😐</span>
+                <span class="mood-btn" onclick="setM(4, this)">😊</span>
+                <span class="mood-btn" onclick="setM(5, this)">🤩</span>
             </div>
             <input type="hidden" name="mood" id="moodIn" value="3">
-            <button type="submit">GỬI TÂM TÌNH</button>
+            <button type="submit" class="btn-save">LƯU LẠI TÂM TƯ</button>
         </form>
     </div>
+
+    <div class="card">
+        <h4 style="color: #6a5acd;">📊 Biểu đồ cảm xúc của bạn</h4>
+        <canvas id="chart" height="150"></canvas>
+    </div>
+
+    <div class="card">
+        <h4 style="color: #6a5acd;">📜 Những dòng nhật ký cũ</h4>
+        {% for e in entries %}
+        <div class="entry">
+            <small style="color: #888;">{{ e.date.strftime('%d/%m/%Y') }} - Mood: {{ e.mood }}/5</small>
+            <p style="margin: 8px 0; line-height: 1.5;">{{ e.content }}</p>
+        </div>
+        {% else %}
+        <p style="color: #888; font-size: 14px;">Bạn chưa có nhật ký. Hãy bắt đầu viết nhé!</p>
+        {% endfor %}
+    </div>
+
     <script>
-        function setMood(v, el) {
+        function setM(v, el) {
             document.getElementById('moodIn').value = v;
             document.querySelectorAll('.mood-btn').forEach(b => b.style.filter = "grayscale(100%)");
             el.style.filter = "grayscale(0%)";
         }
+        new Chart(document.getElementById('chart'), {
+            type: 'line',
+            data: {
+                labels: {{ dates|tojson }},
+                datasets: [{ label: 'Tâm trạng', data: {{ moods|tojson }}, borderColor: '#6a5acd', backgroundColor: 'rgba(106, 90, 205, 0.1)', fill: true, tension: 0.4 }]
+            }
+        });
     </script>
 </body>
 </html>
